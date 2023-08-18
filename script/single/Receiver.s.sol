@@ -13,16 +13,13 @@ contract DeployReceiver is Script {
 
         address sepoliaRouter = 0xD0daae2231E9CB96b94C8512223533293C3693Bf;
         address linkContract = 0x779877A7B0D9E8603169DdbD7836e478b4624789;
-        address receiverRouter = 0xD0daae2231E9CB96b94C8512223533293C3693Bf; //SEPOLIA
 
         Receiver receiver = new Receiver(
             linkContract,
-            sepoliaRouter,
-            receiverRouter
-
+            sepoliaRouter
         );
 
-        console.log("ReceiverS deployed to ", address(receiver));
+        console.log("Receiver deployed to ", address(receiver));
 
         vm.stopBroadcast();
     }

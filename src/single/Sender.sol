@@ -4,20 +4,17 @@ pragma solidity ^0.8.19;
 import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
 import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
-import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
 
-contract Sender is CCIPReceiver {
+contract Sender {
     address link;
-    address senderRouter;
-    address receiverRouter;
+    address router;
     address public latestSender;
     string public latestMessage;
 
-    constructor(address _link, address _senderRouter, address _receiverRouter) CCIPReceiver(_receiverRouter) {
+    constructor(address _link, address _router) {
         link = _link;
-        senderRouter = _senderRouter;
-        receiverRouter = _receiverRouter;
-        LinkTokenInterface(link).approve(senderRouter, type(uint256).max);
+        router = _router;
+        LinkTokenInterface(link).approve(router, type(uint256).max);
     }
 
     function send(address receiver, string memory someText, uint64 destinationChainSelector) external {
@@ -29,11 +26,6 @@ contract Sender is CCIPReceiver {
             feeToken: link
         });
 
-        IRouterClient(senderRouter).ccipSend(destinationChainSelector, message);
-    }
-
-    function _ccipReceive(Client.Any2EVMMessage memory message) internal override {
-        latestSender = abi.decode(message.sender, (address));
-        latestMessage = abi.decode(message.data, (string));
+        IRouterClient(router).ccipSend(destinationChainSelector, message);
     }
 }

@@ -8,18 +8,14 @@ import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications
 
 contract Receiver is CCIPReceiver {
     address link;
-    address senderRouter;
-    address receiverRouter;
-    address pongContract;
-    uint64 chainId;
+    address router;
     address public latestSender;
     string public latestMessage;
 
-    constructor(address _link, address _senderRouter, address _receiverRouter) CCIPReceiver(_receiverRouter) {
+    constructor(address _link, address _router) CCIPReceiver(_router) {
         link = _link;
-        senderRouter = _senderRouter;
-        receiverRouter = _receiverRouter;
-        LinkTokenInterface(link).approve(senderRouter, type(uint256).max);
+        router = _router;
+        LinkTokenInterface(link).approve(router, type(uint256).max);
     }
 
     function send(address receiver, string memory someText, uint64 destinationChainSelector) internal {
@@ -31,18 +27,11 @@ contract Receiver is CCIPReceiver {
             feeToken: link
         });
 
-        IRouterClient(senderRouter).ccipSend(destinationChainSelector, message);
+        IRouterClient(router).ccipSend(destinationChainSelector, message);
     }
 
     function _ccipReceive(Client.Any2EVMMessage memory message) internal override {
         latestSender = abi.decode(message.sender, (address));
         latestMessage = abi.decode(message.data, (string));
-
-        // send(pongContract, "PONG", chainId); // DEST SEPOLIA
-    }
-
-    function setDestInfo(address _pongContract, uint64 _chainId) external {
-        pongContract = _pongContract;
-        chainId = _chainId;
     }
 }
